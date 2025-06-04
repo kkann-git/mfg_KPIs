@@ -1,0 +1,99 @@
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+
+# Set page title and layout
+st.set_page_config(page_title="OEE Calculator", layout="centered")
+
+st.title("📊 OEE & Manufacturing KPIs Dashboard")
+st.markdown("""
+This tool calculates **OEE**, **Scrap Rate**, and **Yield vs. Planned Output** from your production data.
+Upload a CSV or enter data manually to see KPIs and visual gauges.
+""")
+
+input_method = st.radio("Select input method:", ["Manual Entry", "Upload CSV"])
+
+def calculate_kpis(df):
+    df["Run Time"] = df["Planned Production Time"] - df["Downtime"]
+    df["Availability"] = df["Run Time"] / df["Planned Production Time"]
+    df["Performance"] = (df["Ideal Cycle Time"] * df["Total Count"]) / df["Run Time"]
+    df["Quality"] = df["Good Count"] / df["Total Count"]
+    df["OEE"] = df["Availability"] * df["Performance"] * df["Quality"]
+
+    df["Scrap Count"] = df["Total Count"] - df["Good Count"]
+    df["Scrap Rate (%)"] = (df["Scrap Count"] / df["Total Count"]) * 100
+    df["Planned Output"] = df["Planned Production Time"] / df["Ideal Cycle Time"]
+    df["Yield vs. Planned Output (%)"] = (df["Good Count"] / df["Planned Output"]) * 100
+    return df
+
+def plot_gauge(title, value, suffix="%"):
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=value,
+        number={'suffix': suffix},
+        title={'text': title},
+        gauge={
+            'axis': {'range': [0, 100]},
+            'bar': {'color': "darkblue"},
+            'steps': [
+                {'range': [0, 60], 'color': "#ffcccc"},
+                {'range': [60, 85], 'color': "#ffe680"},
+                {'range': [85, 100], 'color': "#ccffcc"},
+            ]
+        }
+    ))
+    st.plotly_chart(fig, use_container_width=True)
+
+if input_method == "Manual Entry":
+    with st.form("manual_kpis"):
+        st.subheader("🔧 Input Production Data")
+        planned_production_time = st.number_input("Planned Production Time (minutes)", min_value=1.0)
+        downtime = st.number_input("Unplanned Downtime (minutes)", min_value=0.0)
+        total_count = st.number_input("Total Units Produced", min_value=1)
+        good_count = st.number_input("Good Units Produced", min_value=0, max_value=total_count)
+        ideal_cycle_time = st.number_input("Ideal Cycle Time per Unit (minutes)", min_value=0.01)
+        submitted = st.form_submit_button("Calculate KPIs")
+
+    if submitted:
+        df = pd.DataFrame({
+            "Planned Production Time": [planned_production_time],
+            "Downtime": [downtime],
+            "Total Count": [total_count],
+            "Good Count": [good_count],
+            "Ideal Cycle Time": [ideal_cycle_time]
+        })
+        result = calculate_kpis(df).iloc[0]
+
+        st.success("✅ KPIs Calculated")
+        for kpi, label in zip(["Availability", "Performance", "Quality", "OEE"],
+                              ["Availability", "Performance", "Quality", "OEE"]):
+            plot_gauge(label, result[kpi]*100)
+        plot_gauge("Scrap Rate", result["Scrap Rate (%)"])
+        plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)"])
+
+        csv = df.to_csv(index=False).encode("utf-8")
+        st.download_button("📥 Download Input Data (CSV)", csv, "input_data.csv", "text/csv")
+
+else:
+    st.subheader("📂 Upload CSV File")
+    uploaded_file = st.file_uploader("Upload CSV", type="csv")
+
+    if uploaded_file:
+        try:
+            df = pd.read_csv(uploaded_file)
+            required_cols = ["Planned Production Time", "Downtime", "Total Count", "Good Count", "Ideal Cycle Time"]
+            if not all(col in df.columns for col in required_cols):
+                st.error("❌ CSV is missing required columns.")
+            else:
+                results = calculate_kpis(df)
+                st.success("✅ KPIs Calculated for All Records")
+                st.dataframe(results[[
+                    "Planned Production Time", "Downtime", "Total Count", "Good Count",
+                    "Availability", "Performance", "Quality", "OEE",
+                    "Scrap Rate (%)", "Yield vs. Planned Output (%)"]])
+
+                export_csv = results.to_csv(index=False).encode("utf-8")
+                st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
+
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
