@@ -1,0 +1,120 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Set page title and layout
+st.set_page_config(page_title="OEE Calculator", layout="centered")
+
+# Title and description
+st.title("📊 OEE (Overall Equipment Effectiveness) Calculator")
+st.markdown("""
+This tool helps small and medium manufacturers calculate **OEE**, an industry-standard KPI to measure equipment productivity.
+
+**OEE = Availability × Performance × Quality**
+
+You can either manually enter data or upload a CSV file.
+""")
+
+st.info("PLEASE NOTE: Entered data will only be stored in memory (RAM) only for the duration of the session and is deleted as soon as it is no longer needed—such as when the user uploads another file, clears the file uploader, or closes the browser tab. This data is not saved to disk or permanently stored in this app.")    
+
+# Toggle between manual and CSV
+input_method = st.radio("Select input method:", ["Manual Entry", "Upload CSV"])
+
+def calculate_oee(df):
+    df["Run Time"] = df["Planned Production Time"] - df["Downtime"]
+    df["Availability"] = df["Run Time"] / df["Planned Production Time"]
+    df["Performance"] = (df["Ideal Cycle Time"] * df["Total Count"]) / df["Run Time"]
+    df["Quality"] = df["Good Count"] / df["Total Count"]
+    df["OEE"] = df["Availability"] * df["Performance"] * df["Quality"]
+    return df
+
+if input_method == "Manual Entry":
+    with st.form("oee_form"):
+        st.subheader("🔧 Input Your Production Data")
+        planned_production_time = st.number_input("Planned Production Time (minutes)", min_value=1.0, step=1.0)
+        downtime = st.number_input("Unplanned Downtime (minutes)", min_value=0.0, step=1.0)
+        total_count = st.number_input("Total Units Produced", min_value=1, step=1)
+        good_count = st.number_input("Good Units Produced (non-defective)", min_value=0, max_value=total_count, step=1)
+        ideal_cycle_time = st.number_input("Ideal Cycle Time per Unit (minutes)", min_value=0.01, step=0.01)
+        submitted = st.form_submit_button("Calculate OEE")
+
+    if submitted:
+        run_time = planned_production_time - downtime
+        if run_time <= 0 or total_count == 0 or good_count > total_count:
+            st.error("Please check your inputs.")
+        else:
+            availability = run_time / planned_production_time
+            performance = (ideal_cycle_time * total_count) / run_time
+            quality = good_count / total_count
+            oee = availability * performance * quality
+
+            st.success("✅ OEE Calculated!")
+            st.metric("Availability", f"{availability*100:.2f}%")
+            st.metric("Performance", f"{performance*100:.2f}%")
+            st.metric("Quality", f"{quality*100:.2f}%")
+            st.metric("🔵 OEE", f"{oee*100:.2f}%")
+
+            st.progress(min(oee, 1.0))
+
+            # Data export
+            results_df = pd.DataFrame({
+                "Planned Time (min)": [planned_production_time],
+                "Downtime (min)": [downtime],
+                "Run Time (min)": [run_time],
+                "Total Units": [total_count],
+                "Good Units": [good_count],
+                "Ideal Cycle Time (min)": [ideal_cycle_time],
+                "Availability": [f"{availability*100:.2f}%"],
+                "Performance": [f"{performance*100:.2f}%"],
+                "Quality": [f"{quality*100:.2f}%"],
+                "OEE": [f"{oee*100:.2f}%"]
+            })
+
+            csv = results_df.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Download Results (CSV)", data=csv, file_name="oee_results.csv", mime="text/csv")
+
+else:
+    st.subheader("📂 Upload CSV File")
+    st.markdown("""
+    Your CSV must contain the following columns:
+    - `Planned Production Time`
+    - `Downtime`
+    - `Total Count`
+    - `Good Count`
+    - `Ideal Cycle Time`
+    """)
+
+    uploaded_file = st.file_uploader("Upload CSV", type="csv")
+
+    if uploaded_file is not None:
+        try:
+            df = pd.read_csv(uploaded_file)
+ 	    st.write("Preview of uploaded data:")
+            required_columns = ["Planned Production Time", "Downtime", "Total Count", "Good Count", "Ideal Cycle Time"]
+            if not all(col in df.columns for col in required_columns):
+                st.error("❌ CSV is missing required columns.")
+            else:
+                result_df = calculate_oee(df.copy())
+                result_df_display = result_df[["Availability", "Performance", "Quality", "OEE"]].copy()
+                result_df_display = result_df_display.applymap(lambda x: f"{x*100:.2f}%" if isinstance(x, float) else x)
+                st.success("✅ OEE Calculated for Uploaded Data")
+                st.dataframe(result_df_display)
+
+                export_df = result_df.copy()
+                st.download_button("📥 Download OEE Results (CSV)", data=export_df.to_csv(index=False).encode("utf-8"),
+                                   file_name="oee_batch_results.csv", mime="text/csv")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+# Buy Me a Coffee
+st.markdown("""
+    <div style="text-align: center; margin-top: 2em;">
+        <a href="https://www.buymeacoffee.com/kkann" target="_blank">
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" 
+                 alt="Buy Me A Coffee" 
+                 style="height: 60px !important;width: 217px !important;">
+        </a>
+    </div>
+""", unsafe_allow_html=True)
+
+
