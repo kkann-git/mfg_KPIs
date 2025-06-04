@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+# import plotly.express as px
 
 # Set page title and layout
 st.set_page_config(page_title="OEE Calculator", layout="centered")
