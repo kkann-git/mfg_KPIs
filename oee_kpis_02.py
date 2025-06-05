@@ -50,7 +50,7 @@ def plot_benchmark_chart(title, values, benchmark, label):
     fig = go.Figure()
     fig.add_trace(go.Scatter(y=values, mode="lines+markers", name=label))
     fig.add_trace(go.Scatter(y=[benchmark]*len(values), mode="lines", name="Benchmark", line=dict(dash="dash")))
-    fig.update_layout(title=title, xaxis_title="Record", yaxis_title=label)
+    fig.update_layout(title=title, xaxis_title="Machine / Process", yaxis_title=label)
     st.plotly_chart(fig, use_container_width=True)
 
 if input_method == "Manual Entry":
@@ -115,7 +115,7 @@ else:
     if uploaded_file:
         try:
             df = pd.read_csv(uploaded_file)
-            required_cols = ["Planned Production Time", "Downtime", "Total Count", "Good Count", "Ideal Cycle Time"]
+            required_cols = ["Description", "Planned Production Time", "Downtime", "Total Count", "Good Count", "Ideal Cycle Time"]
             if not all(col in df.columns for col in required_cols):
                 st.error("❌ CSV is missing required columns.")
             else:
@@ -128,7 +128,7 @@ else:
                 
                 # Benchmark trend lines
                 for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
-                    plot_benchmark_chart(f"{metric} Over Time", results[metric]*100, benchmark, metric)
+                    plot_benchmark_chart(f"{metric} Over Time",  results["Description"], results[metric]*100, benchmark, metric)
 
                 export_csv = results.to_csv(index=False).encode("utf-8")
                 st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
