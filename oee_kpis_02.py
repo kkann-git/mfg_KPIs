@@ -28,11 +28,42 @@ def calculate_kpis(df):
     df["Yield vs. Planned Output (%)"] = (df["Good Count"] / df["Planned Output"]) * 100
     return df
 
-def plot_gauge(title, value, suffix="%", alert_threshold=None, reverse_alert=False):
+# def plot_gauge(title, value, suffix="%", alert_threshold=None, reverse_alert=False):
+#     color = "darkblue"
+#     if alert_threshold is not None:
+#         if (reverse_alert and value > alert_threshold) or (not reverse_alert and value < alert_threshold):
+#             color = "crimson"
+
+#     fig = go.Figure(go.Indicator(
+#         mode="gauge+number",
+#         value=value,
+#         number={'suffix': suffix},
+#         title={'text': title},
+#         gauge={
+#             'axis': {'range': [0, 100]},
+#             'bar': {'color': color},
+#             'steps': [
+#                 {'range': [0, 60], 'color': "#ffcccc"},
+#                 {'range': [60, 85], 'color': "#ffe680"},
+#                 {'range': [85, 100], 'color': "#ccffcc"},
+#             ]
+#         }
+#     ))
+#     st.plotly_chart(fig, use_container_width=True)
+
+def plot_gauge(title, value, suffix="%", alert_threshold=None, reverse_alert=False, steps=None):
     color = "darkblue"
     if alert_threshold is not None:
         if (reverse_alert and value > alert_threshold) or (not reverse_alert and value < alert_threshold):
             color = "crimson"
+
+    if steps is None:
+        # Default steps if none provided
+        steps = [
+            {'range': [0, 60], 'color': "#ffcccc"},
+            {'range': [60, 85], 'color': "#ffe680"},
+            {'range': [85, 100], 'color': "#ccffcc"},
+        ]
 
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
@@ -42,11 +73,7 @@ def plot_gauge(title, value, suffix="%", alert_threshold=None, reverse_alert=Fal
         gauge={
             'axis': {'range': [0, 100]},
             'bar': {'color': color},
-            'steps': [
-                {'range': [0, 60], 'color': "#ffcccc"},
-                {'range': [60, 85], 'color': "#ffe680"},
-                {'range': [85, 100], 'color': "#ccffcc"},
-            ]
+            'steps': steps
         }
     ))
     st.plotly_chart(fig, use_container_width=True)
@@ -88,15 +115,45 @@ if input_method == "Manual Entry":
             if result[kpi]*100 < threshold:
                 st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
 
-        plot_gauge("OEE", result["OEE"]*100, suffix="%", alert_threshold=85)
+        plot_gauge(
+            "OEE",
+            result["OEE"]*100,
+            suffix="%",
+            alert_threshold=85,
+            steps=[
+                {'range': [0, 70], 'color': "#ffcccc"},
+                {'range': [70, 85], 'color': "#ffe680"},
+                {'range': [85, 100], 'color': "#ccffcc"}
+            ]
+        )
         if result["OEE"]*100 < 85:
             st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")
 
-        plot_gauge("Scrap Rate", result["Scrap Rate (%)"], suffix="%", alert_threshold=5, reverse_alert=True)
+        plot_gauge(
+            "Scrap Rate",
+            result["Scrap Rate (%)"],
+            suffix="%",
+            alert_threshold=5, reverse_alert=True,
+            steps=[
+                {'range': [0, 2], 'color': "#ccffcc"},
+                {'range': [2, 5], 'color': "#ffe680"},
+                {'range': [5, 100], 'color': "#ffcccc"}
+            ]
+        )
         if result["Scrap Rate (%)"] > 5:
             st.warning("⚠️ Scrap Rate exceeds target of 5%. Investigate defect sources.")
 
-        plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)"], suffix="%", alert_threshold=95)
+        plot_gauge(
+            "Yield vs. Planned Output",
+            result["Yield vs. Planned Output (%)"],
+            suffix="%",
+            alert_threshold=95,
+            steps=[
+                {'range': [0, 70], 'color': "#ffcccc"},
+                {'range': [70, 95], 'color': "#ffe680"},
+                {'range': [95, 100], 'color': "#ccffcc"}
+            ]
+        )
         if result["Yield vs. Planned Output (%)"] < 95:
             st.warning("⚠️ Yield vs. Planned Output is below expected 95%. Review production efficiency.")
 
