@@ -96,7 +96,7 @@ if input_method == "Manual Entry":
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("📥 Download Input Data (CSV)", csv, "input_data.csv", "text/csv")
 
-	    # Buy Me a Coffee
+	# Buy Me a Coffee
         st.markdown("""
             <div style="text-align: center; margin-top: 2em;">
                 <a href="https://www.buymeacoffee.com/kkann" target="_blank">
@@ -131,17 +131,16 @@ else:
                 export_csv = results.to_csv(index=False).encode("utf-8")
                 st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
 
-                # Buy Me a Coffee
-                st.markdown("""
-                    <div style="text-align: center; margin-top: 2em;">
-                        <a href="https://www.buymeacoffee.com/kkann" target="_blank">
-                            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" 
-                                alt="Buy Me A Coffee" 
-                                style="height: 60px !important;width: 217px !important;">
-                        </a>
-                    </div>
-                """, unsafe_allow_html=True)
+        	# Buy Me a Coffee
+        	st.markdown("""
+            		<div style="text-align: center; margin-top: 2em;">
+                		<a href="https://www.buymeacoffee.com/kkann" target="_blank">
+                    			<img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" 
+                        			alt="Buy Me A Coffee" 
+                        			style="height: 60px !important;width: 217px !important;">
+                		</a>
+            		</div>
+        	""", unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
-
