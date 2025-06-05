@@ -109,12 +109,101 @@ if input_method == "Manual Entry":
         result = calculate_kpis(df).iloc[0]
 
         st.success("✅ KPIs Calculated")
-        for kpi, label, threshold in zip(["Availability", "Performance", "Quality"],
-                                         ["Availability", "Performance", "Quality"], [90, 95, 99]):
-            plot_gauge(label, result[kpi]*100, suffix="%", alert_threshold=threshold)
-            if result[kpi]*100 < threshold:
-                st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
+        # for kpi, label, threshold in zip(["Availability", "Performance", "Quality"],
+        #                                  ["Availability", "Performance", "Quality"], [90, 95, 99]):
+        #     plot_gauge(label, result[kpi]*100, suffix="%", alert_threshold=threshold)
+        #     if result[kpi]*100 < threshold:
+        #         st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
 
+        # plot_gauge(
+        #     "OEE",
+        #     result["OEE"]*100,
+        #     suffix="%",
+        #     alert_threshold=85,
+        #     steps=[
+        #         {'range': [0, 70], 'color': "#ffcccc"},
+        #         {'range': [70, 85], 'color': "#ffe680"},
+        #         {'range': [85, 100], 'color': "#ccffcc"}
+        #     ]
+        # )
+        # if result["OEE"]*100 < 85:
+        #     st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")
+
+        # plot_gauge(
+        #     "Scrap Rate",
+        #     result["Scrap Rate (%)"],
+        #     suffix="%",
+        #     alert_threshold=5, 
+        #     reverse_alert=True,
+        #     steps=[
+        #         {'range': [0, 2], 'color': "#ccffcc"},
+        #         {'range': [2, 5], 'color': "#ffe680"},
+        #         {'range': [5, 100], 'color': "#ffcccc"}
+        #     ]
+        # )
+        # if result["Scrap Rate (%)"] > 5:
+        #     st.warning("⚠️ Scrap Rate exceeds target of 5%. Investigate defect sources.")
+
+        # plot_gauge(
+        #     "Yield vs. Planned Output",
+        #     result["Yield vs. Planned Output (%)"],
+        #     suffix="%",
+        #     alert_threshold=95,
+        #     steps=[
+        #         {'range': [0, 70], 'color': "#ffcccc"},
+        #         {'range': [70, 95], 'color': "#ffe680"},
+        #         {'range': [95, 100], 'color': "#ccffcc"}
+        #     ]
+        # )
+        # if result["Yield vs. Planned Output (%)"] < 95:
+        #     st.warning("⚠️ Yield vs. Planned Output is below expected 95%. Review production efficiency.")
+
+        # Availability
+        plot_gauge(
+            "Availability",
+            result["Availability"] * 100,
+            suffix="%",
+            alert_threshold=90,
+            steps=[
+                {'range': [0, 70], 'color': "#ffcccc"},
+                {'range': [70, 90], 'color': "#ffe680"},
+                {'range': [90, 100], 'color': "#ccffcc"}
+            ]
+        )
+        if result["Availability"] * 100 < 90:
+            st.warning("⚠️ Availability is below typical benchmark of 90%.")
+
+        # Performance
+        plot_gauge(
+            "Performance",
+            result["Performance"] * 100,
+            suffix="%",
+            alert_threshold=95,
+            steps=[
+                {'range': [0, 75], 'color': "#ffcccc"},
+                {'range': [75, 95], 'color': "#ffe680"},
+                {'range': [95, 100], 'color': "#ccffcc"}
+            ]
+        )    
+        if result["Performance"] * 100 < 95:
+            st.warning("⚠️ Performance is below typical benchmark of 95%.")
+        
+        # Quality
+        plot_gauge(
+            "Quality",
+            result["Quality"] * 100,
+            suffix="%",
+            alert_threshold=99,
+            steps=[
+                {'range': [0, 90], 'color': "#ffcccc"},
+                {'range': [90, 99], 'color': "#ffe680"},
+                {'range': [99, 100], 'color': "#ccffcc"}
+            ]
+        )
+        if result["Quality"] * 100 < 99:
+            st.warning("⚠️ Quality is below typical benchmark of 99%.")   
+        
+        # OEE
         plot_gauge(
             "OEE",
             result["OEE"]*100,
@@ -127,13 +216,14 @@ if input_method == "Manual Entry":
             ]
         )
         if result["OEE"]*100 < 85:
-            st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")
-
+            st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")  
+                
+        # Scrap Rate
         plot_gauge(
             "Scrap Rate",
             result["Scrap Rate (%)"],
             suffix="%",
-            alert_threshold=5, 
+            alert_threshold=5,
             reverse_alert=True,
             steps=[
                 {'range': [0, 2], 'color': "#ccffcc"},
@@ -144,10 +234,11 @@ if input_method == "Manual Entry":
         if result["Scrap Rate (%)"] > 5:
             st.warning("⚠️ Scrap Rate exceeds target of 5%. Investigate defect sources.")
 
+        # Yield vs Planned Output
         plot_gauge(
             "Yield vs. Planned Output",
             result["Yield vs. Planned Output (%)"],
-            suffix="%",
+            suffix="%", 
             alert_threshold=95,
             steps=[
                 {'range': [0, 70], 'color': "#ffcccc"},
