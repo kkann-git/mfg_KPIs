@@ -181,12 +181,58 @@ else:
 
                 if len(results) == 1:
                     row = results.iloc[0]
-                    for kpi, label, threshold in zip(["Availability", "Performance", "Quality"],
-                                                     ["Availability", "Performance", "Quality"], [90, 95, 99]):
-                        plot_gauge(label, row[kpi]*100, suffix="%", alert_threshold=threshold)
-                        if row[kpi]*100 < threshold:
-                            st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
+                    # for kpi, label, threshold in zip(["Availability", "Performance", "Quality"],
+                    #                                  ["Availability", "Performance", "Quality"], [90, 95, 99]):
+                    #     plot_gauge(label, row[kpi]*100, suffix="%", alert_threshold=threshold)
+                    #     if row[kpi]*100 < threshold:
+                    #         st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
 
+                    # Availability
+                    plot_gauge(
+                        "Availability",
+                        row["Availability"] * 100,
+                        suffix="%",
+                        alert_threshold=90,
+                        steps=[
+                            {'range': [0, 70], 'color': "#ffcccc"},
+                            {'range': [70, 90], 'color': "#ffe680"},
+                            {'range': [90, 100], 'color': "#ccffcc"}
+                        ]
+                    )
+                    if row["Availability"] * 100 < 90:
+                        st.warning("⚠️ Availability is below typical benchmark of 90%.")
+
+                    # Performance
+                    plot_gauge(
+                        "Performance",
+                        row["Performance"] * 100,
+                        suffix="%",
+                        alert_threshold=95,
+                        steps=[
+                            {'range': [0, 75], 'color': "#ffcccc"},
+                            {'range': [75, 95], 'color': "#ffe680"},
+                            {'range': [95, 100], 'color': "#ccffcc"}
+                        ]
+                    )
+                    if row["Performance"] * 100 < 95:
+                        st.warning("⚠️ Performance is below typical benchmark of 95%.")
+
+                    # Quality
+                    plot_gauge(
+                        "Quality",
+                        row["Quality"] * 100,
+                        suffix="%",
+                        alert_threshold=99,
+                        steps=[
+                            {'range': [0, 90], 'color': "#ffcccc"},
+                            {'range': [90, 99], 'color': "#ffe680"},
+                            {'range': [99, 100], 'color': "#ccffcc"}
+                        ]
+                    )
+                    if row["Quality"] * 100 < 99:
+                        st.warning("⚠️ Quality is below typical benchmark of 99%.")
+
+                    # OEE
                     plot_gauge(
                         "OEE",
                         row["OEE"]*100,
@@ -201,6 +247,7 @@ else:
                     if row["OEE"]*100 < 85:
                         st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")
 
+                    # Scrap Rate
                     plot_gauge(
                         "Scrap Rate",
                         row["Scrap Rate (%)"],
@@ -216,6 +263,7 @@ else:
                     if row["Scrap Rate (%)"] > 5:
                         st.warning("⚠️ Scrap Rate exceeds target of 5%. Investigate defect sources.")
 
+                    # Yield vs Planned Output
                     plot_gauge(
                         "Yield vs. Planned Output",
                         row["Yield vs. Planned Output (%)"],
