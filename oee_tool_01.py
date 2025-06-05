@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-# import plotly.express as px
+# import plotly.graph_objects as go
 
 # Set page title and layout
 st.set_page_config(page_title="OEE Calculator", layout="centered")
@@ -27,6 +27,28 @@ def calculate_oee(df):
     df["Quality"] = df["Good Count"] / df["Total Count"]
     df["OEE"] = df["Availability"] * df["Performance"] * df["Quality"]
     return df
+
+def plot_gauge(title, value, suffix="%", alert_threshold=None):
+    color = "darkblue"
+    if alert_threshold is not None and value < alert_threshold:
+        color = "crimson"
+
+    # fig = go.Figure(go.Indicator(
+    #     mode="gauge+number",
+    #     value=value,
+    #     number={'suffix': suffix},
+    #     title={'text': title},
+    #     gauge={
+    #         'axis': {'range': [0, 100]},
+    #         'bar': {'color': color},
+    #         'steps': [
+    #             {'range': [0, 60], 'color': "#ffcccc"},
+    #             {'range': [60, 85], 'color': "#ffe680"},
+    #             {'range': [85, 100], 'color': "#ccffcc"},
+    #         ]
+    #     }
+    # ))
+    # st.plotly_chart(fig, use_container_width=True)
 
 if input_method == "Manual Entry":
     with st.form("oee_form"):
@@ -73,6 +95,17 @@ if input_method == "Manual Entry":
             csv = results_df.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Download Results (CSV)", data=csv, file_name="oee_results.csv", mime="text/csv")
 
+            # Buy Me a Coffee
+            st.markdown("""
+                <div style="text-align: center; margin-top: 2em;">
+                    <a href="https://www.buymeacoffee.com/kkann" target="_blank">
+                        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" 
+                            alt="Buy Me A Coffee" 
+                            style="height: 60px !important;width: 217px !important;">
+                    </a>
+                </div>
+            """, unsafe_allow_html=True)
+
 else:
     st.subheader("📂 Upload CSV File")
     st.markdown("""
@@ -105,14 +138,3 @@ else:
                                    file_name="oee_batch_results.csv", mime="text/csv")
         except Exception as e:
             st.error(f"An error occurred: {e}")
-
-# Buy Me a Coffee
-st.markdown("""
-    <div style="text-align: center; margin-top: 2em;">
-        <a href="https://www.buymeacoffee.com/kkann" target="_blank">
-            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" 
-                 alt="Buy Me A Coffee" 
-                 style="height: 60px !important;width: 217px !important;">
-        </a>
-    </div>
-""", unsafe_allow_html=True)

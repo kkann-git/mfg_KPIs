@@ -11,8 +11,6 @@ This tool calculates **OEE**, **Scrap Rate**, and **Yield vs. Planned Output** f
 Upload a CSV or enter data manually to see KPIs and visual gauges.
 """)
 
-st.info("PLEASE NOTE: Entered data will only be stored in memory (RAM) only for the duration of the session and is deleted as soon as it is no longer needed—such as when the user uploads another file, clears the file uploader, or closes the browser tab. This data is not saved to disk or permanently stored in this app.")
-
 input_method = st.radio("Select input method:", ["Manual Entry", "Upload CSV"])
 
 def calculate_kpis(df):
@@ -28,7 +26,11 @@ def calculate_kpis(df):
     df["Yield vs. Planned Output (%)"] = (df["Good Count"] / df["Planned Output"]) * 100
     return df
 
-def plot_gauge(title, value, suffix="%"):
+def plot_gauge(title, value, suffix="%", alert_threshold=None):
+    color = "darkblue"
+    if alert_threshold is not None and value < alert_threshold:
+        color = "crimson"
+
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=value,
@@ -36,7 +38,7 @@ def plot_gauge(title, value, suffix="%"):
         title={'text': title},
         gauge={
             'axis': {'range': [0, 100]},
-            'bar': {'color': "darkblue"},
+            'bar': {'color': color},
             'steps': [
                 {'range': [0, 60], 'color': "#ffcccc"},
                 {'range': [60, 85], 'color': "#ffe680"},
@@ -44,13 +46,6 @@ def plot_gauge(title, value, suffix="%"):
             ]
         }
     ))
-    st.plotly_chart(fig, use_container_width=True)
-
-def plot_benchmark_chart(title, values, benchmark, label):
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(y=values, mode="lines+markers", name=label))
-    fig.add_trace(go.Scatter(y=[benchmark]*len(values), mode="lines", name="Benchmark", line=dict(dash="dash")))
-    fig.update_layout(title=title, xaxis_title="Record", yaxis_title=label)
     st.plotly_chart(fig, use_container_width=True)
 
 if input_method == "Manual Entry":
@@ -73,19 +68,10 @@ if input_method == "Manual Entry":
         })
         result = calculate_kpis(df).iloc[0]
 
-        # st.success("✅ KPIs Calculated")
-        # for kpi, label in zip(["Availability", "Performance", "Quality", "OEE"],
-        #                       ["Availability", "Performance", "Quality", "OEE"]):
-        #     plot_gauge(label, result[kpi]*100)
-        # plot_gauge("Scrap Rate", result["Scrap Rate (%)"])
-        # plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)"])
-
         st.success("✅ KPIs Calculated")
-        for kpi, label, threshold in zip(["Availability", "Performance", "Quality"],
-                                         ["Availability", "Performance", "Quality"], [90, 95, 99]):
-            plot_gauge(label, result[kpi]*100, alert_threshold=threshold)
-            if result[kpi]*100 < threshold:
-                st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
+        for kpi, label in zip(["Availability", "Performance", "Quality"],
+                              ["Availability", "Performance", "Quality"]):
+            plot_gauge(label, result[kpi]*100)
 
         plot_gauge("OEE", result["OEE"]*100, alert_threshold=85)
         if result["OEE"]*100 < 85:
@@ -96,17 +82,6 @@ if input_method == "Manual Entry":
 
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("📥 Download Input Data (CSV)", csv, "input_data.csv", "text/csv")
-
-        # Buy Me a Coffee
-        st.markdown("""
-            <div style="text-align: center; margin-top: 2em;">
-                <a href="https://www.buymeacoffee.com/kkann" target="_blank">
-                    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" 
-                        alt="Buy Me A Coffee" 
-                        style="height: 60px !important;width: 217px !important;">
-                </a>
-            </div>
-        """, unsafe_allow_html=True)
 
 else:
     st.subheader("📂 Upload CSV File")
@@ -125,24 +100,9 @@ else:
                     "Planned Production Time", "Downtime", "Total Count", "Good Count",
                     "Availability", "Performance", "Quality", "OEE",
                     "Scrap Rate (%)", "Yield vs. Planned Output (%)"]])
-                
-                # Benchmark trend lines
-                for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
-                    plot_benchmark_chart(f"{metric} Over Time", results[metric]*100, benchmark, metric)
 
                 export_csv = results.to_csv(index=False).encode("utf-8")
                 st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
-
-                # Buy Me a Coffee
-                st.markdown("""
-                    <div style="text-align: center; margin-top: 2em;">
-                        <a href="https://www.buymeacoffee.com/kkann" target="_blank">
-                            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" 
-                                alt="Buy Me A Coffee" 
-                                style="height: 60px !important;width: 217px !important;">
-                        </a>
-                    </div>
-                """, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
