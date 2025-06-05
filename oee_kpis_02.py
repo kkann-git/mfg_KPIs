@@ -50,11 +50,11 @@ def plot_gauge(title, value, suffix="%", alert_threshold=None):
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-def plot_benchmark_chart(title, values, benchmark):
+def plot_benchmark_chart(title, values, benchmark, descriptions):
     fig = go.Figure()
-    fig.add_trace(go.Scatter(y=values, mode="lines+markers", name=title))
-    fig.add_trace(go.Scatter(y=[benchmark]*len(values), mode="lines", name="Benchmark", line=dict(dash="dash")))
-    fig.update_layout(title=title, xaxis_title="Record", yaxis_title=title)
+    fig.add_trace(go.Scatter(x=descriptions, y=values, mode="lines+markers", name=title))
+    fig.add_trace(go.Scatter(x=descriptions, y=[benchmark]*len(values), mode="lines", name="Benchmark", line=dict(dash="dash")))
+    fig.update_layout(title=title, xaxis_title="Description", yaxis_title=title)
     st.plotly_chart(fig, use_container_width=True)
 
 if input_method == "Manual Entry":
@@ -126,7 +126,12 @@ else:
                     "Scrap Rate (%)", "Yield vs. Planned Output (%)"]])
 
                 for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
-                    plot_benchmark_chart(f"{metric} Over Time", results[metric]*100, benchmark)
+                    plot_benchmark_chart(
+                        f"{metric} Over Time",
+                        results[metric]*100, 
+                        benchmark,
+                        results["Description"]
+                    )
 
                 export_csv = results.to_csv(index=False).encode("utf-8")
                 st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
