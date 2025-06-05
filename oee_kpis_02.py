@@ -91,8 +91,8 @@ if input_method == "Manual Entry":
         if result["OEE"]*100 < 85:
             st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")
 
-        plot_gauge("Scrap Rate", result["Scrap Rate (%)", suffix="%"])
-        plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)", suffix="%"])
+        plot_gauge("Scrap Rate", result["Scrap Rate (%)"])
+        plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)"])
 
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("📥 Download Input Data (CSV)", csv, "input_data.csv", "text/csv")
