@@ -56,6 +56,7 @@ def plot_benchmark_chart(title, values, benchmark, label):
 if input_method == "Manual Entry":
     with st.form("manual_kpis"):
         st.subheader("🔧 Input Production Data")
+        description = st.text_input("Description (e.g., Machine A, Process Step 1)", value="Record 1")
         planned_production_time = st.number_input("Planned Production Time (minutes)", min_value=1.0)
         downtime = st.number_input("Unplanned Downtime (minutes)", min_value=0.0)
         total_count = st.number_input("Total Units Produced", min_value=1)
@@ -65,6 +66,7 @@ if input_method == "Manual Entry":
 
     if submitted:
         df = pd.DataFrame({
+            "Description": [description],
             "Planned Production Time": [planned_production_time],
             "Downtime": [downtime],
             "Total Count": [total_count],
@@ -73,16 +75,14 @@ if input_method == "Manual Entry":
         })
         result = calculate_kpis(df).iloc[0]
 
-        # st.success("✅ KPIs Calculated")
-        # for kpi, label in zip(["Availability", "Performance", "Quality", "OEE"],
-        #                       ["Availability", "Performance", "Quality", "OEE"]):
-        #     plot_gauge(label, result[kpi]*100)
-        # plot_gauge("Scrap Rate", result["Scrap Rate (%)"])
-        # plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)"])
-
         st.success("✅ KPIs Calculated")
-        for kpi, label, threshold in zip(["Availability", "Performance", "Quality"],
-                                         ["Availability", "Performance", "Quality"], [90, 95, 99]):
+        st.write(f"**Description:** {description}")
+        
+        for kpi, label, threshold in zip(
+            ["Availability", "Performance", "Quality"],
+            ["Availability", "Performance", "Quality"],
+            [90, 95, 99]
+        ):
             plot_gauge(label, result[kpi]*100, alert_threshold=threshold)
             if result[kpi]*100 < threshold:
                 st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
@@ -122,7 +122,7 @@ else:
                 results = calculate_kpis(df)
                 st.success("✅ KPIs Calculated for All Records")
                 st.dataframe(results[[
-                    "Planned Production Time", "Downtime", "Total Count", "Good Count",
+                    "Description", "Planned Production Time", "Downtime", "Total Count", "Good Count",
                     "Availability", "Performance", "Quality", "OEE",
                     "Scrap Rate (%)", "Yield vs. Planned Output (%)"]])
                 
