@@ -83,7 +83,6 @@ if input_method == "Manual Entry":
             ["Availability", "Performance", "Quality"],
             [90, 95, 99]
         ):
-            # plot_gauge(label, result[kpi]*100, suffix="%", alert_threshold=threshold) 
             plot_gauge(label, result[kpi]*100, alert_threshold=threshold)                   
             if result[kpi]*100 < threshold:
                 st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
