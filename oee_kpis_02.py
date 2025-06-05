@@ -115,26 +115,65 @@ else:
         try:
             df = pd.read_csv(uploaded_file)
             required_cols = ["Planned Production Time", "Downtime", "Total Count", "Good Count", "Ideal Cycle Time"]
+            # if not all(col in df.columns for col in required_cols):
+            #     st.error("❌ CSV is missing required columns.")
+            # else:
+            #     results = calculate_kpis(df)
+            #     st.success("✅ KPIs Calculated for All Records")
+            #     st.dataframe(results[[
+            #         "Description", "Planned Production Time", "Downtime", "Total Count", "Good Count",
+            #         "Availability", "Performance", "Quality", "OEE",
+            #         "Scrap Rate (%)", "Yield vs. Planned Output (%)"]])
+
+            #     for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
+            #         plot_benchmark_chart(
+            #             f"{metric} Over Time",
+            #             results[metric]*100, 
+            #             benchmark,
+            #             results["Description"]
+            #         )
+
+            #     export_csv = results.to_csv(index=False).encode("utf-8")
+            #     st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
+            
             if not all(col in df.columns for col in required_cols):
                 st.error("❌ CSV is missing required columns.")
             else:
                 results = calculate_kpis(df)
-                st.success("✅ KPIs Calculated for All Records")
-                st.dataframe(results[[
-                    "Description", "Planned Production Time", "Downtime", "Total Count", "Good Count",
-                    "Availability", "Performance", "Quality", "OEE",
-                    "Scrap Rate (%)", "Yield vs. Planned Output (%)"]])
 
-                for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
-                    plot_benchmark_chart(
-                        f"{metric} Over Time",
-                        results[metric]*100, 
-                        benchmark,
-                        results["Description"]
-                    )
+                if len(results) == 1:
+                    st.success("✅ KPIs Calculated")
 
-                export_csv = results.to_csv(index=False).encode("utf-8")
-                st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
+                    result = results.iloc[0]
+
+                    for kpi, label, threshold in zip(["Availability", "Performance", "Quality"],
+                                                    ["Availability", "Performance", "Quality"], [90, 95, 99]):
+                        plot_gauge(label, result[kpi]*100, suffix="%", alert_threshold=threshold)
+                        if result[kpi]*100 < threshold:
+                            st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
+
+                    plot_gauge("OEE", result["OEE"]*100, suffix="%", alert_threshold=85)
+                    if result["OEE"]*100 < 85:
+                        st.warning("⚠️ OEE below world-class standard (85%).")
+
+                    plot_gauge("Scrap Rate", result["Scrap Rate (%)"], suffix="%")
+                    plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)"], suffix="%")
+
+                    export_csv = results.to_csv(index=False).encode("utf-8")
+                    st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
+
+                else:
+                    st.success("✅ KPIs Calculated for All Records")
+                    st.dataframe(results[[
+                        "Description", "Planned Production Time", "Downtime", "Total Count", "Good Count",
+                        "Availability", "Performance", "Quality", "OEE",
+                        "Scrap Rate (%)", "Yield vs. Planned Output (%)"]])
+
+                    for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
+                        plot_benchmark_chart(f"{metric} Over Time", results[metric]*100, benchmark, results["Description"])
+
+                    export_csv = results.to_csv(index=False).encode("utf-8")
+                    st.download_button("📥 Download Results (CSV)", export_csv, "kpi_results.csv", "text/csv")
 
                 # Buy Me a Coffee
                 st.markdown("""
