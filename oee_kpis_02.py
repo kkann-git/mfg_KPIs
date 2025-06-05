@@ -83,16 +83,16 @@ if input_method == "Manual Entry":
             ["Availability", "Performance", "Quality"],
             [90, 95, 99]
         ):
-            plot_gauge(label, result[kpi]*100, alert_threshold=threshold)
+            plot_gauge(label, result[kpi]*100, suffix="%", alert_threshold=threshold)                   
             if result[kpi]*100 < threshold:
                 st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
 
-        plot_gauge("OEE", result["OEE"]*100, alert_threshold=85)
+        plot_gauge("OEE", result["OEE"]*100, suffix="%", alert_threshold=85)
         if result["OEE"]*100 < 85:
             st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")
 
-        plot_gauge("Scrap Rate", result["Scrap Rate (%)"])
-        plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)"])
+        plot_gauge("Scrap Rate", result["Scrap Rate (%)", suffix="%"])
+        plot_gauge("Yield vs. Planned Output", result["Yield vs. Planned Output (%)", suffix="%"])
 
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("📥 Download Input Data (CSV)", csv, "input_data.csv", "text/csv")
@@ -128,7 +128,6 @@ else:
                 
                 # Benchmark trend lines
                 for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
-                    # plot_benchmark_chart(f"{metric} Over Time",  results["Description"], results[metric]*100, benchmark, metric)
                     plot_benchmark_chart(
                         f"{metric} Over Time",
                         results["Description"],           # x-axis
