@@ -83,11 +83,13 @@ if input_method == "Manual Entry":
             ["Availability", "Performance", "Quality"],
             [90, 95, 99]
         ):
-            plot_gauge(label, result[kpi]*100, suffix="%", alert_threshold=threshold)                   
+            # plot_gauge(label, result[kpi]*100, suffix="%", alert_threshold=threshold) 
+            plot_gauge(label, result[kpi]*100, alert_threshold=threshold)                   
             if result[kpi]*100 < threshold:
                 st.warning(f"⚠️ {label} is below typical benchmark of {threshold}%.")
 
-        plot_gauge("OEE", result["OEE"]*100, suffix="%", alert_threshold=85)
+        # plot_gauge("OEE", result["OEE"]*100, suffix="%", alert_threshold=85)
+        plot_gauge("OEE", result["OEE"]*100, alert_threshold=85)
         if result["OEE"]*100 < 85:
             st.warning("⚠️ OEE below world-class standard (85%). Consider investigating downtime, speed losses, or quality issues.")
 
