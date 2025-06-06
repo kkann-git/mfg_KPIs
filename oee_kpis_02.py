@@ -89,22 +89,21 @@ def plot_benchmark_chart(title, values, benchmark, x_labels=None):
         line=dict(color='firebrick', dash='dash')
     ))
 
-    # Add benchmark value labels
+    # Line chart for benchmark
     fig.add_trace(go.Scatter(
         x=x,
-        y=[benchmark + 2]*len(values),  # Offset upward
-        mode="text",
-        text=[f"{benchmark}%" for _ in values],
-        textposition="top right",
-        showlegend=False,
-        textfont=dict(color="firebrick", size=12)
+        y=[benchmark] * len(values),
+        mode="lines",
+        name="Benchmark",
+        line=dict(dash="dash", color="firebrick")
     ))
 
     fig.update_layout(
         title=title,
-        xaxis_title="Description" if x_labels else "Record",
+        xaxis_title="Description" if x_labels is not None else "Record",
         yaxis_title=title,
-        barmode='group'
+        barmode="group",
+        height=400
     )
 
     st.plotly_chart(fig, use_container_width=True)
