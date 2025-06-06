@@ -74,6 +74,9 @@ def plot_benchmark_chart(title, values, benchmark, x_labels=None):
         x=x,
         y=values,
         name=title,
+        text=[f"{v:.1f}%" for v in values],  # Format as whole % inside bars
+        textposition="inside",
+        insidetextanchor="middle",
         marker_color='steelblue'
     ))
 
