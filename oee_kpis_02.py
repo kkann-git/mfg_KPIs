@@ -76,8 +76,9 @@ def plot_benchmark_chart(title, values, benchmark, x_labels=None):
         name=title,
         text=[f"{v:.1f}%" for v in values],
         textposition='inside',
+        insidetextanchor="middle",
         textfont=dict(color='white'),
-        marker_color='steelblue'
+        marker_color='steelblue'     
     ))
 
     # Line plot for benchmark values with label at end
@@ -97,11 +98,13 @@ def plot_benchmark_chart(title, values, benchmark, x_labels=None):
         xaxis_title="Description" if x_labels is not None else "Record",
         yaxis_title=title,
         barmode='group',
-        legend=dict(x=0.01, y=0.99)
+        height=400
+        # legend=dict(x=0.01, y=0.99)
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
+#     ***** This function works except for benchmark text *****
 # def plot_benchmark_chart(title, values, benchmark, x_labels=None):
 #     x = x_labels if x_labels is not None else list(range(1, len(values) + 1))
 
@@ -127,7 +130,6 @@ def plot_benchmark_chart(title, values, benchmark, x_labels=None):
 #         line=dict(dash="dash", color="firebrick")        
 #     ))
 
-#     ***** This function works except for benchmark text *****
 #     # Add benchmark value labels ABOVE and to the RIGHT of the line (no extra legend)
 #     # An error occurred: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
 #     fig.add_trace(go.Scatter(
