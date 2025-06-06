@@ -328,13 +328,13 @@ else:
                 else:
                     x_labels = results["Description"] if "Description" in results.columns else None
                     for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
-                        # plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=x_labels)
-                        plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=results["Description"])
+                        plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=x_labels)
+                        # plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=results["Description"])
 
-                    # plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=x_labels)
-                    # plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=x_labels)
-                    plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=results["Description"])
-                    plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=results["Description"])
+                    plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=x_labels)
+                    plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=x_labels)
+                    # plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=results["Description"])
+                    # plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=results["Description"])
 
 
                 export_csv = results.to_csv(index=False).encode("utf-8")
