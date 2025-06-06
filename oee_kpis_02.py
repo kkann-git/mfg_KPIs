@@ -55,45 +55,45 @@ def plot_gauge(title, value, suffix="%", alert_threshold=None, reverse_alert=Fal
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-# def plot_benchmark_chart(title, values, benchmark, x_labels=None):
-#     fig = go.Figure()
-#     x = x_labels if x_labels is not None else list(range(1, len(values) + 1))
-#     fig.add_trace(go.Scatter(x=x, y=values, mode="lines+markers", name=title))
-#     # fig.add_trace(go.Bar(x=x, y=values, mode="lines+markers", name=title))
-#     fig.add_trace(go.Scatter(x=x, y=[benchmark]*len(values), mode="lines", name="Benchmark", line=dict(dash="dash")))
-#     fig.update_layout(title=title, xaxis_title="Description" if x_labels is not None else "Record", yaxis_title=title)
-#     st.plotly_chart(fig, use_container_width=True)
-
 def plot_benchmark_chart(title, values, benchmark, x_labels=None):
     fig = go.Figure()
-
-    # Add bar chart for KPI values
-    fig.add_trace(go.Bar(
-        x = x_labels if x_labels is not None else list(range(1, len(values) + 1)),
-        y=values,
-        name=title,
-        marker_color="steelblue"
-    ))
-
-    # Add line for benchmark
-    fig.add_trace(go.Scatter(
-        x = x_labels if x_labels is not None else list(range(1, len(values) + 1)),
-        y=[benchmark] * len(values),
-        mode="lines",
-        name="Benchmark",
-        line=dict(color="crimson", dash="dash")
-    ))
-
-    # Layout settings
-    fig.update_layout(
-        title=title,
-        xaxis_title="Record" if not x_labels else "Description",
-        yaxis_title=title,
-        barmode='group',
-        template="plotly_white"
-    )
-
+    x = x_labels if x_labels is not None else list(range(1, len(values) + 1))
+    fig.add_trace(go.Scatter(x=x, y=values, mode="lines+markers", name=title))
+    # fig.add_trace(go.Bar(x=x, y=values, mode="lines+markers", name=title))
+    fig.add_trace(go.Scatter(x=x, y=[benchmark]*len(values), mode="lines", name="Benchmark", line=dict(dash="dash")))
+    fig.update_layout(title=title, xaxis_title="Description" if x_labels is not None else "Record", yaxis_title=title)
     st.plotly_chart(fig, use_container_width=True)
+
+# def plot_benchmark_chart(title, values, benchmark, x_labels=None):
+#     fig = go.Figure()
+
+#     # Add bar chart for KPI values
+#     fig.add_trace(go.Bar(
+#         x = x_labels if x_labels is not None else list(range(1, len(values) + 1)),
+#         y=values,
+#         name=title,
+#         marker_color="steelblue"
+#     ))
+
+#     # Add line for benchmark
+#     fig.add_trace(go.Scatter(
+#         x = x_labels if x_labels is not None else list(range(1, len(values) + 1)),
+#         y=[benchmark] * len(values),
+#         mode="lines",
+#         name="Benchmark",
+#         line=dict(color="crimson", dash="dash")
+#     ))
+
+#     # Layout settings
+#     fig.update_layout(
+#         title=title,
+#         xaxis_title="Record" if not x_labels else "Description",
+#         yaxis_title=title,
+#         barmode='group',
+#         template="plotly_white"
+#     )
+
+#     st.plotly_chart(fig, use_container_width=True)
 
 if input_method == "Manual Entry":
     with st.form("manual_kpis"):
@@ -328,13 +328,13 @@ else:
                 else:
                     x_labels = results["Description"] if "Description" in results.columns else None
                     for metric, benchmark in zip(["Availability", "Performance", "Quality", "OEE"], [90, 95, 99, 85]):
-                        # plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=x_labels)
-                        plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=results["Description"])
+                        plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=x_labels)
+                        # plot_benchmark_chart(f"{metric} by Machine / Process", results[metric]*100, benchmark, x_labels=results["Description"])
 
-                    # plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=x_labels)
-                    # plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=x_labels)
-                    plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=results["Description"])
-                    plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=results["Description"])
+                    plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=x_labels)
+                    plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=x_labels)
+                    # plot_benchmark_chart("Scrap Rate (%) by Machine / Process", results["Scrap Rate (%)"], 5, x_labels=results["Description"])
+                    # plot_benchmark_chart("Yield vs. Planned Output (%) by Machine / Process", results["Yield vs. Planned Output (%)"], 95, x_labels=results["Description"])
 
 
                 export_csv = results.to_csv(index=False).encode("utf-8")
