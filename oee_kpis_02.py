@@ -69,47 +69,87 @@ def plot_benchmark_chart(title, values, benchmark, x_labels=None):
 
     fig = go.Figure()
 
-    # Bar chart for KPI values
+    # Bar plot for KPI values with labels inside
     fig.add_trace(go.Bar(
         x=x,
         y=values,
         name=title,
-        text=[f"{v:.1f}%" for v in values],  # Format as whole % inside bars
-        textposition="inside",
-        insidetextanchor="middle",
+        text=[f"{v:.1f}%" for v in values],
+        textposition='inside',
+        textfont=dict(color='white'),
         marker_color='steelblue'
     ))
 
-    # Line plot for benchmark
+    # Line plot for benchmark values with label at end
     fig.add_trace(go.Scatter(
         x=x,
         y=[benchmark] * len(values),
-        mode='lines',
-        name='Benchmark',
-        line=dict(dash="dash", color="firebrick")        
-    ))
-
-    # Add benchmark value labels ABOVE and to the RIGHT of the line (no extra legend)
-    fig.add_trace(go.Scatter(
-        x=x,
-        y=[benchmark]*len(values),
-        mode="text",
-        text=[f"{benchmark}%" for _ in values],
+        mode="lines+text",
+        name="Benchmark",
+        line=dict(dash="dash", color="darkorange"),
+        text=[f"{benchmark:.1f}%"] + [""] * (len(x) - 1),
         textposition="top right",
-        showlegend=False,  # Prevent duplicate legend item
-        textfont=dict(color="firebrick", size=12)
+        showlegend=True
     ))
 
     fig.update_layout(
         title=title,
-        # xaxis_title="Description" if x_labels is not None else "Record",
-        xaxis_title="Description" if x_labels else "Record",
+        xaxis_title="Description" if x_labels is not None else "Record",
         yaxis_title=title,
-        barmode="group",
-        height=400
+        barmode='group',
+        legend=dict(x=0.01, y=0.99)
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+# def plot_benchmark_chart(title, values, benchmark, x_labels=None):
+#     x = x_labels if x_labels is not None else list(range(1, len(values) + 1))
+
+#     fig = go.Figure()
+
+#     # Bar chart for KPI values
+#     fig.add_trace(go.Bar(
+#         x=x,
+#         y=values,
+#         name=title,
+#         text=[f"{v:.1f}%" for v in values],  # Format as whole % inside bars
+#         textposition="inside",
+#         insidetextanchor="middle",
+#         marker_color='steelblue'
+#     ))
+
+#     # Line plot for benchmark
+#     fig.add_trace(go.Scatter(
+#         x=x,
+#         y=[benchmark] * len(values),
+#         mode='lines',
+#         name='Benchmark',
+#         line=dict(dash="dash", color="firebrick")        
+#     ))
+
+#     ***** This function works except for benchmark text *****
+#     # Add benchmark value labels ABOVE and to the RIGHT of the line (no extra legend)
+#     # An error occurred: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+#     fig.add_trace(go.Scatter(
+#         x=x,
+#         y=[benchmark]*len(values),
+#         mode="text",
+#         text=[f"{benchmark}%" for _ in values],
+#         textposition="top right",
+#         showlegend=False,  # Prevent duplicate legend item
+#         textfont=dict(color="firebrick", size=12)
+#     ))
+
+#     fig.update_layout(
+#         title=title,
+#         # xaxis_title="Description" if x_labels is not None else "Record",
+#         xaxis_title="Description" if x_labels else "Record",
+#         yaxis_title=title,
+#         barmode="group",
+#         height=400
+#     )
+
+#     st.plotly_chart(fig, use_container_width=True)
 
 
 # def plot_benchmark_chart(title, values, benchmark, x_labels=None):
